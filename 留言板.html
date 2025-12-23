@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大学展望留言板</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffd6e7 0%, #c1f0ff 100%);
+            color: #555;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(255, 182, 193, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        h1 {
+            color: #ff8ba0;
+            margin-bottom: 10px;
+            font-size: 2.8rem;
+            position: relative;
+            display: inline-block;
+            text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.8);
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, #ff8ba0, #92d4ff);
+            border-radius: 2px;
+        }
+        
+        .subtitle {
+            color: #ffa8ba;
+            font-size: 1.2rem;
+            margin-top: 15px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .form-container {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(255, 182, 193, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .horizontal-message-board {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(182, 208, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .horizontal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .horizontal-header h2 {
+            color: #ff8ba0;
+            margin: 0;
+            padding: 0;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .horizontal-header i {
+            color: #92d4ff;
+        }
+        
+        .horizontal-scroll-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .message-track {
+            display: flex;
+            gap: 20px;
+            padding: 10px 0;
+            /* 将滚动速度加快2倍：从60s改为15s */
+            animation: scrollHorizontally 30s linear infinite;
+        }
+        
+        .message-track:hover {
+            animation-play-state: paused;
+        }
+        
+        .message-track-item {
+            flex: 0 0 280px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid #c1f0ff;
+            transition: all 0.3s;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+        }
+        
+        .message-track-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(182, 208, 255, 0.3);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .track-message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .track-message-author {
+            font-weight: 700;
+            color: #ff8ba0;
+            font-size: 1.1rem;
+        }
+        
+        .track-message-time {
+            color: #ffa8ba;
+            font-size: 0.9rem;
+        }
+        
+        .track-message-content {
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .track-message-actions {
+            display: flex;
+            gap: 15px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .message-track-item:hover .track-message-actions {
+            opacity: 1;
+        }
+        
+        .track-action-btn {
+            background: none;
+            border: none;
+            color: #ffa8ba;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .track-action-btn:hover {
+            color: #ff6b8b;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .track-like-btn.liked {
+            color: #ff6b8b;
+        }
+        
+        .track-delete-btn:hover {
+            color: #ff4757;
+        }
+        
+        /* 滚动速度加快2倍：从60s改为15s */
+        @keyframes scrollHorizontally {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 60px;
+            background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff8ba0;
+            font-size: 1.5rem;
+            z-index: 2;
+        }
+        
+        .scroll-indicator.left {
+            left: 0;
+            right: auto;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.9), transparent);
+        }
+        
+        h2 {
+            color: #ff8ba0;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 182, 193, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h2 i {
+            color: #92d4ff;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ff8ba0;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ffe4ec;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #92d4ff;
+            box-shadow: 0 0 0 3px rgba(146, 212, 255, 0.3);
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #ff8ba0 0%, #92d4ff 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(255, 139, 160, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 139, 160, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 182, 193, 0.3);
+            color: #ffa8ba;
+            font-size: 0.9rem;
+        }
+        
+        /* 弹窗样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 40px rgba(255, 139, 160, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 182, 193, 0.3);
+        }
+        
+        .modal-title {
+            color: #ff8ba0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: #ffa8ba;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close-modal:hover {
+            color: #ff6b8b;
+            background: rgba(255, 182, 193, 0.2);
+        }
+        
+        .modal-body {
+            color: #666;
+            line-height: 1.7;
+            padding: 10px 0;
+        }
+        
+        .modal-footer {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 182, 193, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-author {
+            color: #ff8ba0;
+            font-weight: 600;
+        }
+        
+        .modal-time {
+            color: #ffa8ba;
+            font-size: 0.9rem;
+        }
+        
+        /* 回复区域样式 */
+        .replies-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 182, 193, 0.3);
+        }
+        
+        .replies-title {
+            color: #ff8ba0;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .reply-list {
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .reply-item {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 12px;
+            border-left: 3px solid #92d4ff;
+        }
+        
+        .reply-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .reply-author {
+            font-weight: 600;
+            color: #92d4ff;
+            font-size: 0.95rem;
+        }
+        
+        .reply-time {
+            color: #ffa8ba;
+            font-size: 0.8rem;
+        }
+        
+        .reply-content {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        
+        .reply-form {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .reply-input-group {
+            margin-bottom: 10px;
+        }
+        
+        .reply-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ffe4ec;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.9);
+            min-height: 80px;
+        }
+        
+        .reply-input:focus {
+            outline: none;
+            border-color: #92d4ff;
+            box-shadow: 0 0 0 3px rgba(146, 212, 255, 0.2);
+        }
+        
+        .reply-btn {
+            background: linear-gradient(135deg, #92d4ff 0%, #c1f0ff 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .reply-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(146, 212, 255, 0.3);
+        }
+        
+        .no-replies {
+            text-align: center;
+            color: #ffa8ba;
+            font-style: italic;
+            padding: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .reply-action-btn {
+            background: none;
+            border: none;
+            color: #ffa8ba;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            transition: color 0.2s;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .reply-action-btn:hover {
+            color: #ff6b8b;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .reply-delete-btn:hover {
+            color: #ff4757;
+        }
+        
+        /* 密码验证弹窗样式 */
+        .password-modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 15px 40px rgba(255, 139, 160, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 12px;
+            margin: 20px 0;
+            border: 2px solid #ffe4ec;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .password-input:focus {
+            outline: none;
+            border-color: #92d4ff;
+            box-shadow: 0 0 0 3px rgba(146, 212, 255, 0.3);
+        }
+        
+        .password-btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .password-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .password-confirm-btn {
+            background: linear-gradient(135deg, #ff8ba0 0%, #92d4ff 100%);
+            color: white;
+        }
+        
+        .password-cancel-btn {
+            background: rgba(255, 182, 193, 0.3);
+            color: #ff8ba0;
+        }
+        
+        .password-confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 139, 160, 0.3);
+        }
+        
+        .password-cancel-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 182, 193, 0.3);
+            background: rgba(255, 182, 193, 0.5);
+        }
+        
+        .password-error {
+            color: #ff6b8b;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .message-track-item {
+                flex: 0 0 250px;
+            }
+            
+            .modal-content, .password-modal-content {
+                padding: 20px;
+            }
+        }
+        
+        .message-counter {
+            background: linear-gradient(135deg, #ff8ba0 0%, #92d4ff 100%);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            margin-left: 8px;
+            box-shadow: 0 2px 5px rgba(255, 139, 160, 0.3);
+        }
+        
+        /* 通知样式 */
+        .notification {
+            background: linear-gradient(135deg, #ff8ba0 0%, #92d4ff 100%) !important;
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, #ff6b8b 0%, #ff4757 100%) !important;
+        }
+        
+        .notification.info {
+            background: linear-gradient(135deg, #92d4ff 0%, #c1f0ff 100%) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-comment-alt"></i> 大学展望留言板</h1>
+            <p class="subtitle">分享你的想法</p>
+        </header>
+        
+        <!-- 横向滚动留言板 -->
+        <div class="horizontal-message-board">
+            <div class="horizontal-header">
+                <h2>
+                    <i class="fas fa-scroll"></i> 留言轮播
+                    <span class="message-counter" id="message-count">0</span>
+                </h2>
+                <div style="color: #ffa8ba; font-size: 0.9rem;">
+                    <i class="fas fa-info-circle"></i> 点击留言可查看详情和回复，鼠标悬停可暂停滚动
+                </div>
+            </div>
+            <div class="horizontal-scroll-container">
+                <div class="scroll-indicator left">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="message-track" id="messageTrack">
+                    <!-- 留言将通过JavaScript动态生成 -->
+                </div>
+                <div class="scroll-indicator">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="form-container">
+                <h2><i class="fas fa-edit"></i> 发布留言</h2>
+                <form id="messageForm">
+                    <div class="form-group">
+                        <label for="author"><i class="fas fa-user"></i> 昵称</label>
+                        <input type="text" id="author" placeholder="请输入您的昵称" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message"><i class="fas fa-comment"></i> 留言内容</label>
+                        <textarea id="message" placeholder="请输入您的留言内容..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-paper-plane"></i> 发布留言
+                    </button>
+                </form>
+            </div>
+            
+            <!-- 右侧信息区域 -->
+            <div style="flex: 1; min-width: 300px; padding: 30px; background: rgba(255, 255, 255, 0.7); border-radius: 20px; box-shadow: 0 8px 25px rgba(182, 208, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.5); backdrop-filter: blur(5px);">
+                <h2 style="color: #ff8ba0; margin-bottom: 20px;"><i class="fas fa-info-circle"></i> 使用说明</h2>
+                <div style="color: #666; line-height: 1.7;">
+                    <p style="margin-bottom: 15px;"><i class="fas fa-heart" style="color: #ff8ba0; margin-right: 8px;"></i> 输入昵称即可进行留言，留言内容公开可见</p>
+                    <p style="margin-bottom: 15px;"><i class="fas fa-thumbs-up" style="color: #92d4ff; margin-right: 8px;"></i> 点击点赞按钮可以给喜欢的留言点赞</p>
+                    <p style="margin-bottom: 15px;"><i class="fas fa-reply" style="color: #c1f0ff; margin-right: 8px;"></i> 可以对他人的留言进行回复互动</p>
+                    <p style="margin-bottom: 15px;"><i class="fas fa-trash" style="color: #ffa8ba; margin-right: 8px;"></i> 删除留言需要管理员密码验证</p>
+                    <p style="margin-bottom: 15px;"><i class="fas fa-mouse-pointer" style="color: #ffb6c1; margin-right: 8px;"></i> 点击上方轮播的留言可以查看完整内容</p>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 182, 193, 0.3);">
+                    <h3 style="color: #ff8ba0; margin-bottom: 15px; font-size: 1.2rem;"><i class="fas fa-chart-bar"></i> 留言统计</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: #666;">总留言数：</span>
+                        <span style="color: #ff8ba0; font-weight: 600;" id="total-messages-stat">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: #666;">总回复数：</span>
+                        <span style="color: #92d4ff; font-weight: 600;" id="total-replies-stat">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: #666;">今日留言：</span>
+                        <span style="color: #c1f0ff; font-weight: 600;" id="today-messages-stat">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #666;">总点赞数：</span>
+                        <span style="color: #ffb6c1; font-weight: 600;" id="total-likes-stat">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>仅供娱乐，请勿发布违法内容</p>
+        </footer>
+    </div>
+
+    <!-- 留言详情弹窗（包含回复功能） -->
+    <div class="modal-overlay" id="messageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-comment-dots"></i> 留言详情
+                </div>
+                <button class="close-modal" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- 留言内容和回复区域将通过JavaScript动态生成 -->
+            </div>
+            <div class="modal-footer">
+                <div class="modal-author" id="modalAuthor"></div>
+                <div class="modal-time" id="modalTime"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 密码验证弹窗 -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="password-modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-key"></i> 管理员验证
+                </div>
+                <button class="close-modal" id="closePasswordModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #666; margin-bottom: 10px;">删除留言需要管理员权限，请输入管理员密码：</p>
+                <input type="password" id="passwordInput" class="password-input" placeholder="请输入管理员密码">
+                <div class="password-error" id="passwordError">
+                    <i class="fas fa-exclamation-circle"></i> 密码错误，请重新输入
+                </div>
+            </div>
+            <div class="password-btn-group">
+                <button class="password-btn password-cancel-btn" id="cancelPasswordBtn">取消</button>
+                <button class="password-btn password-confirm-btn" id="confirmPasswordBtn">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 回复删除密码验证弹窗 -->
+    <div class="modal-overlay" id="replyPasswordModal">
+        <div class="password-modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-key"></i> 管理员验证
+                </div>
+                <button class="close-modal" id="closeReplyPasswordModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #666; margin-bottom: 10px;">删除回复需要管理员权限，请输入管理员密码：</p>
+                <input type="password" id="replyPasswordInput" class="password-input" placeholder="请输入管理员密码">
+                <div class="password-error" id="replyPasswordError">
+                    <i class="fas fa-exclamation-circle"></i> 密码错误，请重新输入
+                </div>
+            </div>
+            <div class="password-btn-group">
+                <button class="password-btn password-cancel-btn" id="cancelReplyPasswordBtn">取消</button>
+                <button class="password-btn password-confirm-btn" id="confirmReplyPasswordBtn">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const messageForm = document.getElementById('messageForm');
+        const messageTrack = document.getElementById('messageTrack');
+        const authorInput = document.getElementById('author');
+        const messageInput = document.getElementById('message');
+        const messageCountEl = document.getElementById('message-count');
+        const totalMessagesStat = document.getElementById('total-messages-stat');
+        const totalRepliesStat = document.getElementById('total-replies-stat');
+        const todayMessagesStat = document.getElementById('today-messages-stat');
+        const totalLikesStat = document.getElementById('total-likes-stat');
+        const messageModal = document.getElementById('messageModal');
+        const modalBody = document.getElementById('modalBody');
+        const modalAuthor = document.getElementById('modalAuthor');
+        const modalTime = document.getElementById('modalTime');
+        const closeModal = document.getElementById('closeModal');
+        
+        // 密码验证相关元素
+        const passwordModal = document.getElementById('passwordModal');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordError = document.getElementById('passwordError');
+        const closePasswordModal = document.getElementById('closePasswordModal');
+        const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
+        const confirmPasswordBtn = document.getElementById('confirmPasswordBtn');
+        
+        // 回复密码验证相关元素
+        const replyPasswordModal = document.getElementById('replyPasswordModal');
+        const replyPasswordInput = document.getElementById('replyPasswordInput');
+        const replyPasswordError = document.getElementById('replyPasswordError');
+        const closeReplyPasswordModal = document.getElementById('closeReplyPasswordModal');
+        const cancelReplyPasswordBtn = document.getElementById('cancelReplyPasswordBtn');
+        const confirmReplyPasswordBtn = document.getElementById('confirmReplyPasswordBtn');
+        
+        // 从本地存储加载留言或初始化空数组
+        let messages = JSON.parse(localStorage.getItem('messages')) || [];
+        let likes = JSON.parse(localStorage.getItem('likes')) || {};
+        
+        // 管理员密码
+        const ADMIN_PASSWORD = "000000";
+        
+        // 当前准备删除的留言ID和回复ID
+        let pendingDeleteId = null;
+        let pendingDeleteReplyInfo = null; // {messageId, replyId}
+        
+        // 获取今天的日期字符串
+        function getTodayDate() {
+            const today = new Date();
+            return `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+        }
+        
+        // 计算今天留言数量
+        function countTodayMessages() {
+            const today = getTodayDate();
+            return messages.filter(msg => msg.date === today).length;
+        }
+        
+        // 计算总点赞数
+        function countTotalLikes() {
+            return Object.values(likes).reduce((sum, count) => sum + count, 0);
+        }
+        
+        // 计算总回复数
+        function countTotalReplies() {
+            return messages.reduce((sum, msg) => sum + (msg.replies ? msg.replies.length : 0), 0);
+        }
+        
+        // 更新统计数据
+        function updateStats() {
+            totalMessagesStat.textContent = messages.length;
+            totalRepliesStat.textContent = countTotalReplies();
+            todayMessagesStat.textContent = countTodayMessages();
+            totalLikesStat.textContent = countTotalLikes();
+            messageCountEl.textContent = messages.length;
+        }
+        
+        // 格式化时间
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / (3600000 * 24));
+            
+            if (diffMins < 1) return '刚刚';
+            if (diffMins < 60) return `${diffMins}分钟前`;
+            if (diffHours < 24) return `${diffHours}小时前`;
+            if (diffDays < 7) return `${diffDays}天前`;
+            
+            return date.toLocaleDateString('zh-CN', { 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // 渲染横向滚动留言列表
+        function renderMessageTrack() {
+            if (messages.length === 0) {
+                messageTrack.innerHTML = `
+                    <div style="text-align: center; color: #ffa8ba; padding: 40px 20px; font-style: italic; width: 100%;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>暂无留言，快来发布第一条留言吧！</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 复制留言数组以创建重复效果
+            const duplicatedMessages = [...messages, ...messages];
+            
+            messageTrack.innerHTML = duplicatedMessages.map((msg, index) => {
+                const messageId = msg.id || index % messages.length;
+                const likeCount = likes[messageId] || 0;
+                const replyCount = msg.replies ? msg.replies.length : 0;
+                
+                return `
+                    <div class="message-track-item" data-id="${messageId}" data-index="${index}">
+                        <div class="track-message-header">
+                            <div class="track-message-author">
+                                <i class="fas fa-user-circle"></i> ${msg.author}
+                            </div>
+                            <div class="track-message-time">
+                                <i class="far fa-clock"></i> ${formatTime(msg.timestamp)}
+                            </div>
+                        </div>
+                        <div class="track-message-content">
+                            ${msg.message.replace(/\n/g, '<br>')}
+                        </div>
+                        <div class="track-message-actions">
+                            <button class="track-action-btn track-like-btn ${likes[messageId] ? 'liked' : ''}" data-id="${messageId}">
+                                <i class="fas fa-thumbs-up"></i> (<span class="track-like-count">${likeCount}</span>)
+                            </button>
+                            <button class="track-action-btn track-reply-btn" data-id="${messageId}">
+                                <i class="fas fa-reply"></i> (<span class="track-reply-count">${replyCount}</span>)
+                            </button>
+                            <button class="track-action-btn track-delete-btn" data-id="${messageId}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // 添加点击事件监听器（查看详情）
+            document.querySelectorAll('.message-track-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // 如果点击的是操作按钮，则不触发弹窗
+                    if (e.target.closest('.track-message-actions')) {
+                        return;
+                    }
+                    
+                    const id = this.getAttribute('data-id');
+                    const index = this.getAttribute('data-index') % messages.length;
+                    showMessageDetail(index);
+                });
+            });
+            
+            // 添加点赞事件监听器
+            document.querySelectorAll('.track-like-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation(); // 阻止事件冒泡，避免触发弹窗
+                    const id = this.getAttribute('data-id');
+                    likeMessage(id);
+                });
+            });
+            
+            // 添加回复按钮事件监听器
+            document.querySelectorAll('.track-reply-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation(); // 阻止事件冒泡，避免触发弹窗
+                    const id = this.getAttribute('data-id');
+                    const index = messages.findIndex(msg => msg.id == id);
+                    if (index !== -1) {
+                        showMessageDetail(index);
+                    }
+                });
+            });
+            
+            // 添加删除事件监听器（现在需要密码验证）
+            document.querySelectorAll('.track-delete-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation(); // 阻止事件冒泡，避免触发弹窗
+                    const id = this.getAttribute('data-id');
+                    showPasswordModal(id);
+                });
+            });
+        }
+        
+        // 显示留言详情弹窗（包含回复功能）
+        function showMessageDetail(index) {
+            if (index < 0 || index >= messages.length) return;
+            
+            const msg = messages[index];
+            const messageId = msg.id || index;
+            const likeCount = likes[messageId] || 0;
+            const replies = msg.replies || [];
+            
+            // 构建回复列表HTML
+            let repliesHTML = '';
+            if (replies.length > 0) {
+                replies.forEach((reply, replyIndex) => {
+                    repliesHTML += `
+                        <div class="reply-item" data-reply-id="${reply.id}">
+                            <div class="reply-header">
+                                <div class="reply-author">
+                                    <i class="fas fa-user-circle"></i> ${reply.author}
+                                </div>
+                                <div class="reply-time">
+                                    ${formatTime(reply.timestamp)}
+                                    <button class="reply-action-btn reply-delete-btn" data-message-id="${messageId}" data-reply-id="${reply.id}" style="margin-left: 10px;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="reply-content">
+                                ${reply.content.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                repliesHTML = `<div class="no-replies"><i class="fas fa-comment-slash"></i> 暂无回复</div>`;
+            }
+            
+            modalBody.innerHTML = `
+                <div style="color: #666; line-height: 1.7; font-size: 1.1rem; margin-bottom: 20px;">
+                    ${msg.message.replace(/\n/g, '<br>')}
+                </div>
+                <div style="margin-bottom: 20px; display: flex; gap: 15px;">
+                    <button class="track-action-btn track-like-btn ${likes[messageId] ? 'liked' : ''}" data-id="${messageId}" style="opacity: 1;">
+                        <i class="fas fa-thumbs-up"></i> 点赞 (<span class="track-like-count">${likeCount}</span>)
+                    </button>
+                    <button class="track-action-btn track-delete-btn" data-id="${messageId}" style="opacity: 1;">
+                        <i class="fas fa-trash"></i> 删除留言
+                    </button>
+                </div>
+                
+                <div class="replies-section">
+                    <div class="replies-title">
+                        <i class="fas fa-comments"></i> 回复 (${replies.length})
+                    </div>
+                    <div class="reply-list">
+                        ${repliesHTML}
+                    </div>
+                    
+                    <div class="reply-form">
+                        <div class="reply-input-group">
+                            <textarea class="reply-input" id="replyContent" placeholder="输入您的回复内容..."></textarea>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <input type="text" id="replyAuthor" placeholder="您的昵称" style="width: 48%; padding: 8px; border: 2px solid #ffe4ec; border-radius: 8px; font-size: 0.95rem;">
+                            <button class="reply-btn" id="submitReplyBtn" data-message-id="${messageId}">
+                                <i class="fas fa-paper-plane"></i> 发布回复
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modalAuthor.innerHTML = `<i class="fas fa-user-circle"></i> ${msg.author}`;
+            modalTime.innerHTML = `<i class="far fa-clock"></i> ${formatTime(msg.timestamp)}`;
+            
+            // 添加弹窗内的点赞事件监听器
+            const likeBtn = modalBody.querySelector('.track-like-btn');
+            if (likeBtn) {
+                likeBtn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    likeMessage(id);
+                    // 更新弹窗内容
+                    setTimeout(() => showMessageDetail(index), 100);
+                });
+            }
+            
+            // 添加弹窗内的删除事件监听器（现在需要密码验证）
+            const deleteBtn = modalBody.querySelector('.track-delete-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    showPasswordModal(id);
+                });
+            }
+            
+            // 添加回复提交按钮事件监听器
+            const submitReplyBtn = modalBody.querySelector('#submitReplyBtn');
+            if (submitReplyBtn) {
+                submitReplyBtn.addEventListener('click', function() {
+                    const messageId = this.getAttribute('data-message-id');
+                    const replyAuthor = document.getElementById('replyAuthor').value.trim();
+                    const replyContent = document.getElementById('replyContent').value.trim();
+                    
+                    if (!replyAuthor || !replyContent) {
+                        showNotification('请填写昵称和回复内容', 'error');
+                        return;
+                    }
+                    
+                    addReply(messageId, replyAuthor, replyContent);
+                    
+                    // 清空输入框
+                    document.getElementById('replyAuthor').value = '';
+                    document.getElementById('replyContent').value = '';
+                    
+                    // 重新加载弹窗内容
+                    setTimeout(() => showMessageDetail(index), 100);
+                });
+            }
+            
+            // 添加回复删除按钮事件监听器
+            document.querySelectorAll('.reply-delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const messageId = this.getAttribute('data-message-id');
+                    const replyId = this.getAttribute('data-reply-id');
+                    showReplyPasswordModal(messageId, replyId);
+                });
+            });
+            
+            messageModal.classList.add('active');
+        }
+        
+        // 显示密码验证弹窗（删除留言）
+        function showPasswordModal(messageId) {
+            pendingDeleteId = messageId;
+            passwordInput.value = '';
+            passwordError.style.display = 'none';
+            passwordModal.classList.add('active');
+            passwordInput.focus();
+        }
+        
+        // 显示密码验证弹窗（删除回复）
+        function showReplyPasswordModal(messageId, replyId) {
+            pendingDeleteReplyInfo = { messageId, replyId };
+            replyPasswordInput.value = '';
+            replyPasswordError.style.display = 'none';
+            replyPasswordModal.classList.add('active');
+            replyPasswordInput.focus();
+        }
+        
+        // 验证密码并删除留言
+        function verifyAndDelete() {
+            const inputPassword = passwordInput.value.trim();
+            
+            if (inputPassword === ADMIN_PASSWORD) {
+                // 密码正确，执行删除
+                deleteMessage(pendingDeleteId);
+                passwordModal.classList.remove('active');
+                showNotification('留言已成功删除');
+                messageModal.classList.remove('active');
+            } else {
+                // 密码错误
+                passwordError.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+                showNotification('密码错误，删除失败', 'error');
+            }
+        }
+        
+        // 验证密码并删除回复
+        function verifyAndDeleteReply() {
+            const inputPassword = replyPasswordInput.value.trim();
+            
+            if (inputPassword === ADMIN_PASSWORD) {
+                // 密码正确，执行删除
+                deleteReply(pendingDeleteReplyInfo.messageId, pendingDeleteReplyInfo.replyId);
+                replyPasswordModal.classList.remove('active');
+                showNotification('回复已成功删除', 'info');
+                
+                // 重新加载当前弹窗内容
+                const index = messages.findIndex(msg => msg.id == pendingDeleteReplyInfo.messageId);
+                if (index !== -1) {
+                    setTimeout(() => showMessageDetail(index), 100);
+                }
+            } else {
+                // 密码错误
+                replyPasswordError.style.display = 'block';
+                replyPasswordInput.value = '';
+                replyPasswordInput.focus();
+                showNotification('密码错误，删除失败', 'error');
+            }
+        }
+        
+        // 点赞留言
+        function likeMessage(id) {
+            if (!likes[id]) {
+                likes[id] = 0;
+            }
+            
+            // 检查用户是否已经点赞过这条留言
+            const likedKey = `liked_${id}`;
+            const hasLiked = localStorage.getItem(likedKey);
+            
+            if (hasLiked) {
+                // 取消点赞
+                likes[id]--;
+                localStorage.removeItem(likedKey);
+            } else {
+                // 点赞
+                likes[id]++;
+                localStorage.setItem(likedKey, 'true');
+            }
+            
+            // 保存点赞数据并更新UI
+            localStorage.setItem('likes', JSON.stringify(likes));
+            renderMessageTrack();
+            updateStats();
+        }
+        
+        // 删除留言
+        function deleteMessage(id) {
+            // 找到留言索引
+            const index = messages.findIndex(msg => msg.id == id);
+            
+            if (index !== -1) {
+                messages.splice(index, 1);
+                localStorage.setItem('messages', JSON.stringify(messages));
+                renderMessageTrack();
+                updateStats();
+            }
+        }
+        
+        // 添加回复
+        function addReply(messageId, author, content) {
+            // 找到留言索引
+            const index = messages.findIndex(msg => msg.id == messageId);
+            
+            if (index !== -1) {
+                // 初始化replies数组（如果不存在）
+                if (!messages[index].replies) {
+                    messages[index].replies = [];
+                }
+                
+                // 创建回复对象
+                const newReply = {
+                    id: Date.now(), // 使用时间戳作为唯一ID
+                    author,
+                    content,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // 添加到回复数组
+                messages[index].replies.push(newReply);
+                
+                // 保存到本地存储
+                localStorage.setItem('messages', JSON.stringify(messages));
+                updateStats();
+                
+                // 显示成功消息
+                showNotification('回复发布成功！');
+            }
+        }
+        
+        // 删除回复
+        function deleteReply(messageId, replyId) {
+            // 找到留言索引
+            const messageIndex = messages.findIndex(msg => msg.id == messageId);
+            
+            if (messageIndex !== -1 && messages[messageIndex].replies) {
+                // 找到回复索引
+                const replyIndex = messages[messageIndex].replies.findIndex(reply => reply.id == replyId);
+                
+                if (replyIndex !== -1) {
+                    // 删除回复
+                    messages[messageIndex].replies.splice(replyIndex, 1);
+                    
+                    // 保存到本地存储
+                    localStorage.setItem('messages', JSON.stringify(messages));
+                    updateStats();
+                }
+            }
+        }
+        
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            // 如果已经存在通知，先移除
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 12px;
+                box-shadow: 0 5px 15px rgba(255, 139, 160, 0.4);
+                z-index: 1000;
+                font-weight: 600;
+                transform: translateX(150%);
+                transition: transform 0.3s ease-out;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // 显示通知
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 10);
+            
+            // 3秒后隐藏并移除通知
+            setTimeout(() => {
+                notification.style.transform = 'translateX(150%)';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+        
+        // 处理表单提交
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const author = authorInput.value.trim();
+            const message = messageInput.value.trim();
+            
+            if (!author || !message) {
+                alert('请填写昵称和留言内容！');
+                return;
+            }
+            
+            // 创建新留言对象
+            const newMessage = {
+                id: Date.now(), // 使用时间戳作为唯一ID
+                author,
+                message,
+                timestamp: new Date().toISOString(),
+                date: getTodayDate(),
+                replies: [] // 初始化回复数组
+            };
+            
+            // 添加到留言数组
+            messages.push(newMessage);
+            
+            // 保存到本地存储
+            localStorage.setItem('messages', JSON.stringify(messages));
+            
+            // 重置表单
+            messageForm.reset();
+            
+            // 重新渲染留言列表
+            renderMessageTrack();
+            updateStats();
+            
+            // 显示成功消息
+            showNotification('留言发布成功！');
+        });
+        
+        // 关闭留言详情弹窗
+        closeModal.addEventListener('click', function() {
+            messageModal.classList.remove('active');
+        });
+        
+        // 点击弹窗外部关闭留言详情弹窗
+        messageModal.addEventListener('click', function(e) {
+            if (e.target === messageModal) {
+                messageModal.classList.remove('active');
+            }
+        });
+        
+        // 关闭密码验证弹窗（留言）
+        closePasswordModal.addEventListener('click', function() {
+            passwordModal.classList.remove('active');
+        });
+        
+        // 取消密码验证（留言）
+        cancelPasswordBtn.addEventListener('click', function() {
+            passwordModal.classList.remove('active');
+        });
+        
+        // 点击弹窗外部关闭密码验证弹窗（留言）
+        passwordModal.addEventListener('click', function(e) {
+            if (e.target === passwordModal) {
+                passwordModal.classList.remove('active');
+            }
+        });
+        
+        // 确认密码验证（留言）
+        confirmPasswordBtn.addEventListener('click', function() {
+            verifyAndDelete();
+        });
+        
+        // 按Enter键确认密码（留言）
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyAndDelete();
+            }
+        });
+        
+        // 关闭密码验证弹窗（回复）
+        closeReplyPasswordModal.addEventListener('click', function() {
+            replyPasswordModal.classList.remove('active');
+        });
+        
+        // 取消密码验证（回复）
+        cancelReplyPasswordBtn.addEventListener('click', function() {
+            replyPasswordModal.classList.remove('active');
+        });
+        
+        // 点击弹窗外部关闭密码验证弹窗（回复）
+        replyPasswordModal.addEventListener('click', function(e) {
+            if (e.target === replyPasswordModal) {
+                replyPasswordModal.classList.remove('active');
+            }
+        });
+        
+        // 确认密码验证（回复）
+        confirmReplyPasswordBtn.addEventListener('click', function() {
+            verifyAndDeleteReply();
+        });
+        
+        // 按Enter键确认密码（回复）
+        replyPasswordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyAndDeleteReply();
+            }
+        });
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMessageTrack();
+            updateStats();
+            
+            // 加载示例留言（仅当没有任何留言时）
+            if (messages.length === 0) {
+                // 添加一些示例留言
+                const sampleMessages = [
+                    {
+                        id: 1,
+                        author: "马卡龙小精灵",
+                        message: "欢迎来到马卡龙留言板！这里使用柔和的马卡龙配色，让人心情愉悦。每条留言都会被保存到您的浏览器本地存储中，刷新页面也不会丢失。快来留下你的第一条留言吧！",
+                        timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
+                        date: getTodayDate(),
+                        replies: [
+                            {
+                                id: 101,
+                                author: "新用户",
+                                content: "这个留言板设计得真漂亮！我很喜欢马卡龙配色。",
+                                timestamp: new Date(Date.now() - 3500000).toISOString()
+                            },
+                            {
+                                id: 102,
+                                author: "访客",
+                                content: "谢谢介绍，我马上试试发布留言！",
+                                timestamp: new Date(Date.now() - 3400000).toISOString()
+                            }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        author: "甜点爱好者",
+                        message: "这个马卡龙色系太可爱了！像糖果一样甜美，使用起来心情都变好了呢！留言板的功能也很实用，点赞和删除功能都很方便。",
+                        timestamp: new Date(Date.now() - 3600000).toISOString(),
+                        date: getTodayDate(),
+                        replies: [
+                            {
+                                id: 201,
+                                author: "设计师",
+                                content: "是的，马卡龙配色确实能让人心情愉悦！",
+                                timestamp: new Date(Date.now() - 3500000).toISOString()
+                            }
+                        ]
+                    },
+                    {
+                        id: 3,
+                        author: "设计师",
+                        message: "马卡龙配色让人联想到春天的樱花和晴朗的天空，营造出温馨舒适的氛围。这是一个使用纯HTML、CSS和JavaScript实现的留言板，适合学习参考。",
+                        timestamp: new Date().toISOString(),
+                        date: getTodayDate(),
+                        replies: []
+                    }
+                ];
+                
+                messages = sampleMessages;
+                localStorage.setItem('messages', JSON.stringify(messages));
+                renderMessageTrack();
+                updateStats();
+            }
+        });
+    </script>
+</body>
+</html>
